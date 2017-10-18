@@ -1,0 +1,77 @@
+#!/bin/sh
+##################################################
+#Contains functions for SSMIS access menu
+#Programmed by Joshua Konecki
+#Project Start: 25 April 2017
+#Updated 
+##################################################
+#Access permission determined by username
+user=`whoami`
+get_user_info()
+{
+isql ssmistest 2>/dev/null <<HEREDOC
+HEREDOC
+
+#Retreive user.id, store in userid
+userid=`isql ssmistest 2>/dev/null <<HEREDOC
+OUTPUT TO PIPE "cat" without headings
+SELECT user.id
+  FROM user
+    WHERE user.name = "$user"
+HEREDOC`
+
+#Read available screen ids into array
+screenId=(`isql ssmistest 2>/dev/null <<HEREDOC
+OUTPUT to PIPE "cat" without headings
+SELECT screen_id || " "
+  FROM permission
+    WHERE permission.user_id = $userid
+      ORDER BY screen_id
+HEREDOC`)
+
+#Build array of screens available to user
+userScreens=()
+OLD_IFS=$IFS
+IFS=$'\n'
+for i in "${screenId[@]}"; do
+userScreens=("${userScreens[@]}" 
+`isql ssmistest 2>/dev/null <<HEREDOC
+OUTPUT to PIPE "cat" without headings
+SELECT  screen_id || "|" || RTRIM(screen.description) ||
+                     "|" || RTRIM(screen.command) ||
+                     "|" || screen.read_only
+  FROM screen
+    WHERE screen.screen_id = $i
+HEREDOC`)
+done
+IFS=$OLD_IFS
+
+#Build parallel array with read-only designation
+readOnlyArray=()
+index=0
+for i in "${screenId[@]}"; do
+readOnlyArray[index]=`echo ${userScreens[index]} | cut -d "|" -f4`
+((index++))
+done
+
+}
+
+#Displays menu options for user
+display_screens()
+{
+index=0
+
+for i in "${userScreens[@]}"; do
+  echo -n " "
+  echo -n $(( index + 1 ))
+  echo -n ')'
+  echo ${userScreens[index]} | cut -d "|" -f2 | tr '\n' " "
+  if [ ${readOnlyArray[index]} -eq 1 ]; then
+    echo "*"
+  else
+    echo ""
+  fi
+  ((index++))
+done | pr --columns=2 --length=15 -T
+}
+

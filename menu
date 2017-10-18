@@ -1,0 +1,46 @@
+#!/bin/sh
+##################################################
+#Uses a database to build an appropriate menu
+#Programmed by Joshua Konecki
+#Project Start: 25 April 2017
+#Updated 
+##################################################
+
+#Prevent Exit
+trap '' INT
+#include functions file
+. /home/openfolder/menu_functions
+get_user_info
+numOptions=${#userScreens[@]}
+
+while [ "ETERNALLY LOOPING" ]; do
+clear
+echo -n " "
+echo -n "Welcome, $user "
+echo "* denotes read only."
+echo ""
+display_screens
+tput cup 23 0
+echo -n "Option or q to quit ->:"
+read -n 1 menuChoice
+
+if [ -z "$menuChoice" ]; then
+  tput cup 22 26
+  printf "No choice made. Press ENTER:"
+  read -n 1
+elif (( 1 <= $menuChoice && $menuChoice <= $numOptions ))
+then
+  ((menuChoice--))
+   $(echo ${userScreens[menuChoice]} | cut -d "|" -f3)
+   echo -n "Press ENTER to continue!:"
+   read
+elif [ $menuChoice == 'q' ]
+then
+  exit
+else
+  echo "Invalid Input."
+  echo -n "Press ENTER to continue:"
+  read
+fi
+
+done
