@@ -3,6 +3,8 @@
 #Filename: admin_functions
 #This file contains functions for admin_script
 #Programmed by Joshua Konecki
+#Project Start: 25 April 2017
+#Updated 3 May 2017
 ##################################################
 
 #type will be either s, c, or r for

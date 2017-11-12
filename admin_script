@@ -3,10 +3,13 @@
 #Program Name: admin_script
 #This is the fsd admin script
 #Programmed by Joshua Konecki
+#Project Started 27 April 2017
+#Updated 14 Oct 2017
+#
 #Read-only must have identical description
 #to read/write counterpart
 #####################################################
-. /home/openfolder/admin_functions
+. ./admin_functions
 #Prevent Exit
 #TODO uncomment trap line
 #trap '' INT
